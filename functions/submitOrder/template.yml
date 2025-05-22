@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Submit Order Function
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+  ExistingSQSQueueUrl:
+    Type: String
+    Description: URL of the existing SQS queue
+  ExistingApiId:
+    Type: String
+    Description: ID of the existing API Gateway
+
+Resources:
+  SubmitOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ExistingSQSQueueUrl
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ExistingApiId
+            Path: /orders
+            Method: POST
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !Select [1, !Split ["/", !Select [4, !Split [".", !Ref ExistingSQSQueueUrl]]]]
+
+Outputs:
+  SubmitOrderFunctionArn:
+    Value: !GetAtt SubmitOrderFunction.Arn
