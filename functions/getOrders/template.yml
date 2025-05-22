@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Get Orders Function
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+  ExistingDynamoDBTableName:
+    Type: String
+    Description: Name of the existing DynamoDB table
+  ExistingApiId:
+    Type: String
+    Description: ID of the existing API Gateway
+
+Resources:
+  GetOrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref ExistingDynamoDBTableName
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ExistingDynamoDBTableName
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ExistingApiId
+            Path: /orders
+            Method: GET
+
+Outputs:
+  GetOrdersFunctionArn:
+    Value: !GetAtt GetOrdersFunction.Arn
