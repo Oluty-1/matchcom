@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Delete Order Function
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+  ExistingDynamoDBTableName:
+    Type: String
+    Description: Name of the existing DynamoDB table
+  ExistingApiId:
+    Type: String
+    Description: ID of the existing API Gateway
+
+Resources:
+  DeleteOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref ExistingDynamoDBTableName
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref ExistingDynamoDBTableName
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ExistingApiId
+            Path: /orders/{orderId}
+            Method: DELETE
+
+Outputs:
+  DeleteOrderFunctionArn:
+    Value: !GetAtt DeleteOrderFunction.Arn
