@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Order Management Application - Shared Configuration
+
+Parameters:
+  Environment:a
+    Type: String
+    Default: prod
+    Description: Deployment environment (e.g., prod, dev)
+  ExistingSQSQueueUrl:
+    Type: String
+    Description: URL of the existing SQS queue
+    Default: https://sqs.us-east-1.amazonaws.com/302225372317/orderQueue
+  ExistingDynamoDBTableName:
+    Type: String
+    Description: Name of the existing DynamoDB table
+    Default: orders
+  ExistingApiId:
+    Type: String
+    Description: ID of the existing API Gateway
+    Default: o6moxkl86j
+
+Metadata:
+  AWS::Serverless::Application:
+    Properties:
+      Name: order-management
+      Description: Shared configuration for order management serverless application
+      Location: ./
+
+Outputs:
+  ApplicationName:
+    Description: Name of the application
+    Value: order-management
+  Environment:
+    Description: Deployment environment
+    Value: !Ref Environment
