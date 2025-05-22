@@ -1,0 +1,23 @@
+name: Deploy ProcessOrder
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'functions/processOrder/**'
+
+jobs:
+  build-test:
+    uses: ./.github/workflows/build-test.yml
+    with:
+      function_name: processOrder
+
+  deploy:
+    needs: build-test
+    uses: ./.github/workflows/deploy-function.yml
+    with:
+      function_name: processOrder
+      environment: prod
+      sqs_queue_url: https://sqs.us-east-1.amazonaws.com/302225372317/orderQueue
+      dynamo_table_name: orders
+      api_id: o6moxkl86j

@@ -1,0 +1,22 @@
+name: Deploy SubmitOrder
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'functions/submitOrder/**'
+
+jobs:
+  build-test:
+    uses: ./.github/workflows/build-test.yml
+    with:
+      function_name: submitOrder
+
+  deploy:
+    needs: build-test
+    uses: ./.github/workflows/deploy-function.yml
+    with:
+      function_name: submitOrder
+      environment: prod
+      sqs_queue_url: https://sqs.us-east-1.amazonaws.com/302225372317/orderQueue
+      api_id: o6moxkl86j

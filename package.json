@@ -1,0 +1,20 @@
+{
+  "name": "order-management",
+  "version": "1.0.0",
+  "description": "Serverless order management application",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "jest",
+    "test:submitOrder": "jest tests/submitOrder.test.js",
+    "test:processOrder": "jest tests/processOrder.test.js",
+    "test:getOrders": "jest tests/getOrders.test.js",
+    "test:updateOrder": "jest tests/updateOrder.test.js",
+    "test:deleteOrder": "jest tests/deleteOrder.test.js"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-sqs": "^3.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0"
+  }
+}

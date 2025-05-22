@@ -1,0 +1,50 @@
+name: Deploy Function
+on:
+  workflow_call:
+    inputs:
+      function_name:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      sqs_queue_url:
+        required: false
+        type: string
+      dynamo_table_name:
+        required: false
+        type: string
+      api_id:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Install SAM CLI
+        run: |
+          curl -L https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip -o sam.zip
+          unzip sam.zip -d sam_installation
+          sudo ./sam_installation/install
+          sam --version
+      - name: Build and Deploy
+        run: |
+          cd functions/${{ inputs.function_name }}
+          sam build
+          sam deploy --stack-name ${{ inputs.function_name }}-${{ inputs.environment }} \
+            --region us-east-1 \
+            --parameter-overrides \
+              Environment=${{ inputs.environment }} \
+              ExistingSQSQueueUrl=${{ inputs.sqs_queue_url }} \
+              ExistingDynamoDBTableName=${{ inputs.dynamo_table_name }} \
+              ExistingApiId=${{ inputs.api_id }} \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset \
+            --no-confirm-changeset

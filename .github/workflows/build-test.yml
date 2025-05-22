@@ -1,0 +1,22 @@
+name: Build and Test
+on:
+  workflow_call:
+    inputs:
+      function_name:
+        required: true
+        type: string
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Lint code
+        run: npm run lint
+      - name: Run tests
+        run: npm run test:${{ inputs.function_name }}
