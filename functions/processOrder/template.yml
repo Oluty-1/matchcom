@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Process Order Function
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+  ExistingSQSQueueUrl:
+    Type: String
+    Description: URL of the existing SQS queue
+  ExistingDynamoDBTableName:
+    Type: String
+    Description: Name of the existing DynamoDB table
+
+Resources:
+  ProcessOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref ExistingDynamoDBTableName
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref ExistingDynamoDBTableName
+        - SQSPollerPolicy:
+            QueueName: !Select [1, !Split ["/", !Select [4, !Split [".", !Ref ExistingSQSQueueUrl]]]]
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !Ref ExistingSQSQueueUrl
+            BatchSize: 10
+
+Outputs:
+  ProcessOrderFunctionArn:
+    Value: !GetAtt ProcessOrderFunction.Arn
